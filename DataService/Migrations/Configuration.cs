@@ -9,7 +9,21 @@ namespace DataService.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
+
+            // Source: http://stackoverflow.com/questions/36024400/migratedatabasetolatestversion-no-running-seed-method
+            // Check if there are migrations pending to run, this can happen if database doesn't exists or if there was any
+            //  change in the schema
+            var migrator = new DbMigrator(this);
+            var _pendingMigrations = migrator.GetPendingMigrations().Any();
+
+            // If there are pending migrations run migrator.Update() to create/update the database then run the Seed() method to populate
+            //  the data if necessary
+            if (_pendingMigrations)
+            {
+                migrator.Update();
+                Seed(new DataService.ExampleAppModel());
+            }
         }
 
         protected override void Seed(DataService.ExampleAppModel context)
